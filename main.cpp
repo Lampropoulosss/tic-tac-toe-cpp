@@ -1,10 +1,10 @@
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
 
 using std::cin;
 using std::cout;
 using std::endl;
-using std::make_pair;
-using std::pair;
 using std::string;
 
 bool hasWon(string T[][3], string player);
@@ -89,16 +89,52 @@ int main()
     {
         // With the bot
 
-        do
-        {
-            cout << "Bot's turn." << endl;
-            bestMove(T, moves);
-            moves++;
-            T[bestX][bestY] = "X";
-            printBoard(T);
-            end = hasWon(T, "X");
+        std::srand(std::time(0));
 
-            if (!end && moves < 9)
+        int randomNumber = (std::rand() % 2) + 1;
+
+        cout << "The player who starts is chosen randomly" << endl;
+
+        if (randomNumber == 1)
+        {
+            do
+            {
+                cout << "Bot's turn." << endl;
+                bestMove(T, moves);
+                moves++;
+                T[bestX][bestY] = "X";
+                printBoard(T);
+                end = hasWon(T, "X");
+
+                if (!end && moves < 9)
+                {
+                    cout << "Your turn." << endl;
+                    do
+                    {
+                        cout << "Give cordinates(from 1 to 3)" << endl;
+                        cin >> x;
+                        cin.ignore();
+                        cin >> y;
+                        cin.ignore();
+                        x -= 1;
+                        y -= 1;
+
+                        if (x < 0 || x > 2 || y < 0 || y > 2)
+                        {
+                            cout << "Invalid input. The cordinates can only be 1 or 2 or 3." << endl;
+                        }
+                    } while ((x < 0 || x > 2) || (y < 0 && y > 2) || T[x][y] != " ");
+
+                    moves++;
+                    T[x][y] = "O";
+                    printBoard(T);
+                    end = hasWon(T, "O");
+                }
+            } while (end == false && moves < 9);
+        }
+        else
+        {
+            do
             {
                 cout << "Your turn." << endl;
                 do
@@ -121,8 +157,19 @@ int main()
                 T[x][y] = "O";
                 printBoard(T);
                 end = hasWon(T, "O");
-            }
-        } while (end == false && moves < 9);
+
+                if (!end && moves < 9)
+                {
+                    cout << "Bot's turn." << endl;
+                    bestMove(T, moves);
+                    moves++;
+                    T[bestX][bestY] = "X";
+                    printBoard(T);
+                    end = hasWon(T, "X");
+                }
+
+            } while (end == false && moves != 9);
+        }
 
         announceWinner(moves, mode);
     }
@@ -135,27 +182,63 @@ int main()
 
 bool hasWon(string T[][3], string player)
 {
-    if ((T[0][0] == T[0][1] && T[0][1] == T[0][2] && T[0][2] == player) ||
-        (T[1][0] == T[1][1] && T[1][1] == T[1][2] && T[1][2] == player) ||
-        (T[2][0] == T[2][1] && T[2][1] == T[2][2] && T[2][2] == player))
+    // Check rows
+    for (int i = 0; i < 3; i++)
+    {
+        bool rowWin = true;
+        for (int j = 0; j < 3; j++)
+        {
+            if (T[i][j] != player)
+            {
+                rowWin = false;
+                break;
+            }
+        }
+        if (rowWin)
+        {
+            return true;
+        }
+    }
+
+    // Check columns
+    for (int j = 0; j < 3; j++)
+    {
+        bool colWin = true;
+        for (int i = 0; i < 3; i++)
+        {
+            if (T[i][j] != player)
+            {
+                colWin = false;
+                break;
+            }
+        }
+        if (colWin)
+        {
+            return true;
+        }
+    }
+
+    // Check diagonals
+    bool diagonal1Win = true;
+    bool diagonal2Win = true;
+    for (int i = 0; i < 3; i++)
+    {
+        if (T[i][i] != player)
+        {
+            diagonal1Win = false;
+        }
+        if (T[i][2 - i] != player)
+        {
+            diagonal2Win = false;
+        }
+    }
+
+    if (diagonal1Win || diagonal2Win)
     {
         return true;
     }
-    else if ((T[0][0] == T[1][0] && T[1][0] == T[2][0] && T[2][0] == player) ||
-             (T[0][1] == T[1][1] && T[1][1] == T[2][1] && T[2][1] == player) ||
-             (T[0][2] == T[1][2] && T[1][2] == T[2][2] && T[2][2] == player))
-    {
-        return true;
-    }
-    else if ((T[0][0] == T[1][1] && T[1][1] == T[2][2] && T[2][2] == player) ||
-             (T[0][2] == T[1][1] && T[1][1] == T[2][0] && T[2][0] == player))
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+
+    return false;
 }
 
 void printBoard(string T[][3])
