@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include "botFunctions.h"
 
 using std::cin;
 using std::cout;
@@ -10,11 +11,12 @@ using std::string;
 bool hasWon(string T[][3], string player);
 void printBoard(string T[][3]);
 void announceWinner(int moves, int mode);
-int minimax(string T[][3], short int moves, bool isMaximizing);
-void bestMove(string T[][3], short int moves);
+// int minimax(string T[][3], short int moves, bool isMaximizing);
+// void bestMove(string T[][3], short int moves, int *bestSquare);
+// void bestMove(string T[][3], short int moves);
 
-int bestX;
-int bestY;
+// int bestX;
+// int bestY;
 
 int main()
 {
@@ -89,6 +91,8 @@ int main()
     {
         // With the bot
 
+        int bestSquare[2]; // Holds the cordinates of the best move the bot can do.
+
         std::srand(std::time(0));
 
         int randomNumber = (std::rand() % 2) + 1;
@@ -100,9 +104,9 @@ int main()
             do
             {
                 cout << "Bot's turn." << endl;
-                bestMove(T, moves);
+                bestMove(T, moves, bestSquare);
                 moves++;
-                T[bestX][bestY] = "X";
+                T[bestSquare[0]][bestSquare[1]] = "X";
                 printBoard(T);
                 end = hasWon(T, "X");
 
@@ -161,9 +165,9 @@ int main()
                 if (!end && moves < 9)
                 {
                     cout << "Bot's turn." << endl;
-                    bestMove(T, moves);
+                    bestMove(T, moves, bestSquare);
                     moves++;
-                    T[bestX][bestY] = "X";
+                    T[bestSquare[0]][bestSquare[1]] = "X";
                     printBoard(T);
                     end = hasWon(T, "X");
                 }
@@ -180,66 +184,7 @@ int main()
     return 0;
 }
 
-bool hasWon(string T[][3], string player)
-{
-    // Check rows
-    for (int i = 0; i < 3; i++)
-    {
-        bool rowWin = true;
-        for (int j = 0; j < 3; j++)
-        {
-            if (T[i][j] != player)
-            {
-                rowWin = false;
-                break;
-            }
-        }
-        if (rowWin)
-        {
-            return true;
-        }
-    }
-
-    // Check columns
-    for (int j = 0; j < 3; j++)
-    {
-        bool colWin = true;
-        for (int i = 0; i < 3; i++)
-        {
-            if (T[i][j] != player)
-            {
-                colWin = false;
-                break;
-            }
-        }
-        if (colWin)
-        {
-            return true;
-        }
-    }
-
-    // Check diagonals
-    bool diagonal1Win = true;
-    bool diagonal2Win = true;
-    for (int i = 0; i < 3; i++)
-    {
-        if (T[i][i] != player)
-        {
-            diagonal1Win = false;
-        }
-        if (T[i][2 - i] != player)
-        {
-            diagonal2Win = false;
-        }
-    }
-
-    if (diagonal1Win || diagonal2Win)
-    {
-        return true;
-    }
-
-    return false;
-}
+// Functions and utilities
 
 void printBoard(string T[][3])
 {
@@ -283,86 +228,25 @@ void announceWinner(int moves, int mode)
     }
 }
 
-void bestMove(string T[][3], short int moves)
-{
-    int bestScore = -800;
-    for (short int i = 0; i < 3; i++)
-    {
-        for (short int j = 0; j < 3; j++)
-        {
-            if (T[i][j] == " ")
-            {
-                T[i][j] = "X";
-                int score = minimax(T, moves + 1, false);
-                T[i][j] = " ";
-                if (score > bestScore)
-                {
-                    bestScore = score;
-                    bestX = i;
-                    bestY = j;
-                }
-            }
-        }
-    }
-}
-
-int minimax(string T[][3], short int moves, bool isMaximizing)
-{
-    // Check if on terminal state
-
-    if (hasWon(T, "X"))
-    {
-        return 1;
-    }
-    else if (hasWon(T, "O"))
-    {
-        return -1;
-    }
-    else if (moves == 9 && !hasWon(T, "X") && !hasWon(T, "O"))
-    {
-        return 0;
-    }
-
-    if (isMaximizing)
-    {
-        int bestScore = -800;
-        for (short int i = 0; i < 3; i++)
-        {
-            for (short int j = 0; j < 3; j++)
-            {
-                if (T[i][j] == " ")
-                {
-                    T[i][j] = "X";
-                    int score = minimax(T, moves + 1, false);
-                    T[i][j] = " ";
-                    if (score > bestScore)
-                    {
-                        bestScore = score;
-                    }
-                }
-            }
-        }
-        return bestScore;
-    }
-    else
-    {
-        int bestScore = 800;
-        for (short int i = 0; i < 3; i++)
-        {
-            for (short int j = 0; j < 3; j++)
-            {
-                if (T[i][j] == " ")
-                {
-                    T[i][j] = "O";
-                    int score = minimax(T, moves + 1, true);
-                    T[i][j] = " ";
-                    if (score < bestScore)
-                    {
-                        bestScore = score;
-                    }
-                }
-            }
-        }
-        return bestScore;
-    }
-}
+// void bestMove(string T[][3], short int moves)
+// {
+//     int bestScore = -800;
+//     for (short int i = 0; i < 3; i++)
+//     {
+//         for (short int j = 0; j < 3; j++)
+//         {
+//             if (T[i][j] == " ")
+//             {
+//                 T[i][j] = "X";
+//                 int score = minimax(T, moves + 1, false);
+//                 T[i][j] = " ";
+//                 if (score > bestScore)
+//                 {
+//                     bestScore = score;
+//                     bestX = i;
+//                     bestY = j;
+//                 }
+//             }
+//         }
+//     }
+// }
