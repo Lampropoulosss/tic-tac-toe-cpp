@@ -3,4 +3,4 @@
 1) Player VS Player
 2) Player VS Bot
 
-**Just compile the main.cpp file.**
+**Install a compiler and run `g++ Board.cpp minimax.cpp Point.cpp main.cpp -o TicTacToe.exe`.**
