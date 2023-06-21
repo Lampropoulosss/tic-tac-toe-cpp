@@ -1,36 +1,21 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
-#include "botFunctions.h"
+#include "Point.h"
+#include "Board.h"
 
 using std::cin;
 using std::cout;
 using std::endl;
 using std::string;
 
-bool hasWon(string T[][3], string player);
-void printBoard(string T[][3]);
 void announceWinner(int moves, int mode);
-// int minimax(string T[][3], short int moves, bool isMaximizing);
-// void bestMove(string T[][3], short int moves, int *bestSquare);
-// void bestMove(string T[][3], short int moves);
-
-// int bestX;
-// int bestY;
 
 int main()
 {
-    string T[3][3];
+    Board board;
+    Point point;
     bool end = false;
-    short int moves = 0, x, y;
-
-    for (int i = 0; i < 3; i++)
-    {
-        for (int j = 0; j < 3; j++)
-        {
-            T[i][j] = " ";
-        }
-    }
 
     // Ask whether you want to play with the bot or with another player
     cout << "Want to play with the bot or another player? (1 or 2)\n1) Bot\n2) Player" << endl;
@@ -54,9 +39,10 @@ int main()
 
         do
         {
-            moves += 1;
+            // board.increaseMoves();
             do
             {
+                short int x, y;
                 cout << "Give cordinates(from 1 to 3)" << endl;
                 cin >> x;
                 cin.ignore();
@@ -64,34 +50,34 @@ int main()
                 cin.ignore();
                 x -= 1;
                 y -= 1;
+                point.changeX(x);
+                point.changeY(y);
 
-                if (x < 0 || x > 2 || y < 0 || y > 2)
+                if (point.getX() < 0 || point.getX() > 2 || point.getY() < 0 || point.getY() > 2)
                 {
                     cout << "Invalid input. The cordinates can only be 1 or 2 or 3." << endl;
                 }
-            } while ((x < 0 || x > 2) || (y < 0 && y > 2) || T[x][y] != " ");
+            } while ((point.getX() < 0 || point.getX() > 2) || (point.getY() < 0 && point.getY() > 2) || board.get(point) != " ");
 
-            if (moves % 2 == 0)
+            if (board.getMoves() % 2 == 0)
             {
-                T[x][y] = "O";
+                board.play(point, "O");
             }
             else
             {
-                T[x][y] = "X";
+                board.play(point, "X");
             }
 
-            printBoard(T);
+            board.printBoard();
 
-            end = hasWon(T, T[x][y]);
+            end = board.hasWon(board.get(point));
 
-        } while (end == false && moves != 9);
-        announceWinner(moves, mode);
+        } while (end == false && board.getMoves() != 9);
+        announceWinner(board.getMoves(), mode);
     }
     else
     {
         // With the bot
-
-        int bestSquare[2]; // Holds the cordinates of the best move the bot can do.
 
         std::srand(std::time(0));
 
@@ -104,17 +90,18 @@ int main()
             do
             {
                 cout << "Bot's turn." << endl;
-                bestMove(T, moves, bestSquare);
-                moves++;
-                T[bestSquare[0]][bestSquare[1]] = "X";
-                printBoard(T);
-                end = hasWon(T, "X");
+                point.changePoint(board.bestMove(point));
+                board.play(point, "X");
+                board.printBoard();
 
-                if (!end && moves < 9)
+                end = board.hasWon("X");
+
+                if (!end && board.getMoves() < 9)
                 {
                     cout << "Your turn." << endl;
                     do
                     {
+                        short int x, y;
                         cout << "Give cordinates(from 1 to 3)" << endl;
                         cin >> x;
                         cin.ignore();
@@ -122,19 +109,21 @@ int main()
                         cin.ignore();
                         x -= 1;
                         y -= 1;
+                        point.changeX(x);
+                        point.changeY(y);
 
                         if (x < 0 || x > 2 || y < 0 || y > 2)
                         {
                             cout << "Invalid input. The cordinates can only be 1 or 2 or 3." << endl;
                         }
-                    } while ((x < 0 || x > 2) || (y < 0 && y > 2) || T[x][y] != " ");
+                    } while ((point.getX() < 0 || point.getX() > 2) || (point.getY() < 0 && point.getY() > 2) || board.get(point) != " ");
 
-                    moves++;
-                    T[x][y] = "O";
-                    printBoard(T);
-                    end = hasWon(T, "O");
+                    board.play(point, "O");
+                    board.printBoard();
+
+                    end = board.hasWon("O");
                 }
-            } while (end == false && moves < 9);
+            } while (end == false && board.getMoves() < 9);
         }
         else
         {
@@ -143,6 +132,7 @@ int main()
                 cout << "Your turn." << endl;
                 do
                 {
+                    short int x, y;
                     cout << "Give cordinates(from 1 to 3)" << endl;
                     cin >> x;
                     cin.ignore();
@@ -150,32 +140,34 @@ int main()
                     cin.ignore();
                     x -= 1;
                     y -= 1;
+                    point.changeX(x);
+                    point.changeY(y);
 
                     if (x < 0 || x > 2 || y < 0 || y > 2)
                     {
                         cout << "Invalid input. The cordinates can only be 1 or 2 or 3." << endl;
                     }
-                } while ((x < 0 || x > 2) || (y < 0 && y > 2) || T[x][y] != " ");
+                } while ((point.getX() < 0 || point.getX() > 2) || (point.getY() < 0 && point.getY() > 2) || board.get(point) != " ");
 
-                moves++;
-                T[x][y] = "O";
-                printBoard(T);
-                end = hasWon(T, "O");
+                board.play(point, "O");
+                board.printBoard();
+                end = board.hasWon("O");
 
-                if (!end && moves < 9)
+                if (!end && board.getMoves() < 9)
                 {
                     cout << "Bot's turn." << endl;
-                    bestMove(T, moves, bestSquare);
-                    moves++;
-                    T[bestSquare[0]][bestSquare[1]] = "X";
-                    printBoard(T);
-                    end = hasWon(T, "X");
+                    point.changePoint(board.bestMove(point));
+
+                    board.play(point, "X");
+                    board.printBoard();
+
+                    end = board.hasWon("X");
                 }
 
-            } while (end == false && moves != 9);
+            } while (end == false && board.getMoves() != 9);
         }
 
-        announceWinner(moves, mode);
+        announceWinner(board.getMoves(), mode);
     }
 
     // Program ended, shows "press any key to continue"
@@ -185,14 +177,6 @@ int main()
 }
 
 // Functions and utilities
-
-void printBoard(string T[][3])
-{
-    for (int i = 0; i < 3; i++)
-    {
-        cout << "|" << T[i][0] << "|" << T[i][1] << "|" << T[i][2] << "|" << endl;
-    }
-}
 
 void announceWinner(int moves, int mode)
 {
@@ -227,26 +211,3 @@ void announceWinner(int moves, int mode)
         }
     }
 }
-
-// void bestMove(string T[][3], short int moves)
-// {
-//     int bestScore = -800;
-//     for (short int i = 0; i < 3; i++)
-//     {
-//         for (short int j = 0; j < 3; j++)
-//         {
-//             if (T[i][j] == " ")
-//             {
-//                 T[i][j] = "X";
-//                 int score = minimax(T, moves + 1, false);
-//                 T[i][j] = " ";
-//                 if (score > bestScore)
-//                 {
-//                     bestScore = score;
-//                     bestX = i;
-//                     bestY = j;
-//                 }
-//             }
-//         }
-//     }
-// }
