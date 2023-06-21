@@ -9,7 +9,7 @@ using std::cout;
 using std::endl;
 using std::string;
 
-void announceWinner(int moves, int mode);
+void announceWinner(Board board, int moves, int mode);
 
 int main()
 {
@@ -73,7 +73,7 @@ int main()
             end = board.hasWon(board.get(point));
 
         } while (end == false && board.getMoves() != 9);
-        announceWinner(board.getMoves(), mode);
+        announceWinner(board, board.getMoves(), mode);
     }
     else
     {
@@ -167,7 +167,7 @@ int main()
             } while (end == false && board.getMoves() != 9);
         }
 
-        announceWinner(board.getMoves(), mode);
+        announceWinner(board, board.getMoves(), mode);
     }
 
     // Program ended, shows "press any key to continue"
@@ -178,7 +178,7 @@ int main()
 
 // Functions and utilities
 
-void announceWinner(int moves, int mode)
+void announceWinner(Board board, int moves, int mode)
 {
     if (mode == 2)
     {
@@ -201,11 +201,11 @@ void announceWinner(int moves, int mode)
         {
             cout << "This match is a tie." << endl;
         }
-        else if (moves % 2 == 0)
+        else if (board.hasWon("O"))
         {
             cout << "Player won!" << endl;
         }
-        else
+        else if (board.hasWon("X"))
         {
             cout << "Bot won!" << endl;
         }
